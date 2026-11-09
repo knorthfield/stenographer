@@ -7,11 +7,22 @@
 Dictation for the macOS menu bar. Hold the **right Option** key, speak, and release. The text is
 pasted into the app you are using.
 
-- Speech recognition runs on your Mac with Parakeet TDT 0.6B v3 (25 European languages, found
-  automatically). The app downloads the model (about 480 MB) the first time it starts.
+- Speech recognition runs on your Mac with Parakeet TDT 0.6B v3 (25 European languages, see
+  below). The app downloads the model (about 480 MB) the first time it starts.
 - A short tap of right Option does nothing. If you press another key while you hold right Option
   (for example ⌥3 for #), the recording stops and nothing is pasted.
 - Your clipboard is put back after the paste.
+
+## Languages
+
+Stenographer finds the language by itself. You do not choose it. It supports these 25 languages:
+
+Bulgarian, Croatian, Czech, Danish, Dutch, English, Estonian, Finnish, French, German, Greek,
+Hungarian, Italian, Latvian, Lithuanian, Maltese, Polish, Portuguese, Romanian, Russian, Slovak,
+Slovenian, Spanish, Swedish and Ukrainian.
+
+This is the list of the speech model,
+[Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3).
 
 ## Install
 
