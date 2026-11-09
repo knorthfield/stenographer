@@ -28,9 +28,6 @@ This is the list of the speech model,
 
 Needs macOS 26 or later.
 
-> The first release is not out yet ([#1](https://github.com/knorthfield/stenographer/issues/1)).
-> Until then, build from source (below).
-
 With [Homebrew](https://brew.sh):
 
 ```sh
