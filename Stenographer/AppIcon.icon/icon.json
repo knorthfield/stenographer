@@ -1,0 +1,56 @@
+{
+  "fill" : {
+    "linear-gradient" : [
+      "srgb:0.18000,0.17000,0.40000,1.00000",
+      "srgb:0.33000,0.19000,0.45000,1.00000"
+    ]
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "glass" : false,
+          "image-name" : "dot.svg",
+          "name" : "dot"
+        },
+        {
+          "glass" : false,
+          "image-name" : "waveform.svg",
+          "name" : "waveform"
+        }
+      ],
+      "name" : "content",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.3
+      },
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0
+      }
+    },
+    {
+      "layers" : [
+        {
+          "fill" : "automatic",
+          "glass" : true,
+          "image-name" : "capsule.svg",
+          "name" : "capsule"
+        }
+      ],
+      "name" : "bubble",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "squares" : "shared"
+  }
+}
