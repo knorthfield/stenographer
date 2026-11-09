@@ -1,0 +1,60 @@
+name: Stenographer
+options:
+  bundleIdPrefix: com.krisnorthfield
+  deploymentTarget:
+    macOS: "26.0"
+  createIntermediateGroups: true
+configFiles:
+  Debug: Local.xcconfig
+  Release: Local.xcconfig
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    GENERATE_INFOPLIST_FILE: NO
+    ENABLE_HARDENED_RUNTIME: YES
+packages:
+  FluidAudio:
+    url: https://github.com/FluidInference/FluidAudio
+    exactVersion: 0.18.3
+targets:
+  Stenographer:
+    type: application
+    platform: macOS
+    sources:
+      - Stenographer
+    dependencies:
+      - package: FluidAudio
+    info:
+      path: Stenographer/Info.plist
+      properties:
+        CFBundleDisplayName: Stenographer
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSUIElement: true
+        LSApplicationCategoryType: public.app-category.productivity
+        NSMicrophoneUsageDescription: Stenographer listens while you hold the right Option key, and turns your speech into text.
+    entitlements:
+      path: Stenographer/Stenographer.entitlements
+      properties:
+        com.apple.security.device.audio-input: true
+  StenographerTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - StenographerTests
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: Stenographer
+schemes:
+  Stenographer:
+    build:
+      targets:
+        Stenographer: all
+    test:
+      targets:
+        - StenographerTests

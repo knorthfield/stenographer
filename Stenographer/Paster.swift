@@ -1,0 +1,41 @@
+import AppKit
+
+/// Pastes text into the focused app with ⌘V, then puts the old clipboard back.
+@MainActor
+enum Paster {
+    static func paste(_ text: String) {
+        let pasteboard = NSPasteboard.general
+        let saved = pasteboard.pasteboardItems?.map { item in
+            item.types.compactMap { type in item.data(forType: type).map { (type, $0) } }
+        } ?? []
+
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
+        // Tells clipboard managers not to keep this text.
+        pasteboard.setData(Data(), forType: NSPasteboard.PasteboardType("org.nspasteboard.TransientType"))
+        let changeCount = pasteboard.changeCount
+        pressCommandV()
+
+        Task {
+            try? await Task.sleep(for: .milliseconds(500))
+            // Something else changed the clipboard after us: leave it alone.
+            guard pasteboard.changeCount == changeCount, !saved.isEmpty else { return }
+            pasteboard.clearContents()
+            pasteboard.writeObjects(saved.map { contents in
+                let item = NSPasteboardItem()
+                for (type, data) in contents { item.setData(data, forType: type) }
+                return item
+            })
+        }
+    }
+
+    private static func pressCommandV() {
+        let vKey: CGKeyCode = 9
+        let source = CGEventSource(stateID: .combinedSessionState)
+        for isDown in [true, false] {
+            let event = CGEvent(keyboardEventSource: source, virtualKey: vKey, keyDown: isDown)
+            event?.flags = .maskCommand
+            event?.post(tap: .cghidEventTap)
+        }
+    }
+}
