@@ -33,7 +33,11 @@ final class Recorder: @unchecked Sendable {
     func stop() -> [Float] {
         engine.inputNode.removeTap(onBus: 0)
         engine.stop()
-        return lock.withLock { samples }
+        // Give the samples to the caller, and keep no copy while the app is idle.
+        return lock.withLock {
+            defer { samples = [] }
+            return samples
+        }
     }
 
     private func append(_ buffer: AVAudioPCMBuffer, using converter: AVAudioConverter) {
