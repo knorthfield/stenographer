@@ -47,11 +47,22 @@ final class Dictation {
         if case .failed = modelState { true } else { false }
     }
 
+    /// The fraction of the model that is ready, while it loads.
+    var modelProgress: Double? {
+        if case .loading(let fraction) = modelState { fraction } else { nil }
+    }
+
+    var hasAllPermissions: Bool { hasMicrophone && hasAccessibility }
+
+    /// Called at start, and when a permission goes away, if a permission is missing.
+    @ObservationIgnored var onPermissionMissing: () -> Void = {}
+
     func start() {
         key.onPress = { [weak self] in self?.startRecording() }
         key.onRelease = { [weak self] in self?.stopRecording() }
         key.onOtherKey = { [weak self] in self?.cancelRecording() }
         loadModel()
+        if !hasAllPermissions { onPermissionMissing() }
         watchPermissions()
     }
 
@@ -75,8 +86,11 @@ final class Dictation {
     private func watchPermissions() {
         Task {
             while true {
+                let lostMicrophone = hasMicrophone && !Permissions.hasMicrophone
+                let lostAccessibility = hasAccessibility && !Permissions.hasAccessibility
                 if hasMicrophone != Permissions.hasMicrophone { hasMicrophone.toggle() }
                 if hasAccessibility != Permissions.hasAccessibility { hasAccessibility.toggle() }
+                if lostMicrophone || lostAccessibility { onPermissionMissing() }
                 if hasAccessibility { key.start() }
                 try? await Task.sleep(for: .seconds(1))
             }
