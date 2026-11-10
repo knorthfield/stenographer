@@ -10,6 +10,10 @@ actor Transcriber {
         let models = try await AsrModels.downloadAndLoad(version: .v3) { progress($0.fractionCompleted) }
         let manager = AsrManager(config: .default)
         try await manager.loadModels(models)
+        // Core ML prepares the model on its first prediction, which takes some seconds.
+        // Do it now, not at the first dictation.
+        var state = TdtDecoderState.make(decoderLayers: await manager.decoderLayerCount)
+        _ = try await manager.transcribe([Float](repeating: 0, count: 16_000), decoderState: &state)
         self.manager = manager
     }
 
