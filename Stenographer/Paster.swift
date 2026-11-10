@@ -29,12 +29,16 @@ enum Paster {
         }
     }
 
+    /// Presses the ⌘ key itself, not only the ⌘ flag on V: Chrome and Electron apps (Slack,
+    /// VS Code) ignore a ⌘V that comes without a ⌘ key-down.
     private static func pressCommandV() {
+        let commandKey: CGKeyCode = 0x37
         let vKey: CGKeyCode = 9
         let source = CGEventSource(stateID: .combinedSessionState)
-        for isDown in [true, false] {
-            let event = CGEvent(keyboardEventSource: source, virtualKey: vKey, keyDown: isDown)
-            event?.flags = .maskCommand
+        let keys: [(CGKeyCode, Bool)] = [(commandKey, true), (vKey, true), (vKey, false), (commandKey, false)]
+        for (key, isDown) in keys {
+            let event = CGEvent(keyboardEventSource: source, virtualKey: key, keyDown: isDown)
+            event?.flags = key == commandKey && !isDown ? [] : .maskCommand
             event?.post(tap: .cghidEventTap)
         }
     }
