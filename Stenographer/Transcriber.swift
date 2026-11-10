@@ -20,7 +20,8 @@ actor Transcriber {
     /// `samples` are 16 kHz mono.
     func transcribe(_ samples: [Float]) async throws -> String {
         guard let manager else { throw TranscriberError.notLoaded }
-        // Parakeet needs at least one second of audio.
+        // FluidAudio refuses less than 0.3 s of audio. A press of 0.3 s can give fewer samples,
+        // because the audio engine starts late, so pad to one second.
         let padded = samples + [Float](repeating: 0, count: max(0, 16_000 - samples.count))
         var state = TdtDecoderState.make(decoderLayers: await manager.decoderLayerCount)
         return try await manager.transcribe(padded, decoderState: &state).text
