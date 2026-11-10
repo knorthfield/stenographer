@@ -9,7 +9,7 @@ enum NumberFormatting {
         // FluidAudio's inverse text normalisation (NVIDIA NeMo rules) does most of the work, in
         // US style. Before it, add the UK "half one", which it does not know. After it, change
         // the US style.
-        let normalized = TextNormalizer.shared.normalizeSentence(halfHours(text))
+        let normalized = TextNormalizer.shared.normalizeSentence(halfHours(separatedMeridiems(text)))
         return smallNumbersAsWords(ukTimes(normalized))
     }
 
@@ -17,6 +17,12 @@ enum NumberFormatting {
         "one", "two", "three", "four", "five", "six",
         "seven", "eight", "nine", "ten", "eleven", "twelve",
     ]
+
+    /// Parakeet sometimes joins the hour and "am": "tenam" → "ten am".
+    private static func separatedMeridiems(_ text: String) -> String {
+        text.replacing(/\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)([ap]m)\b/
+            .ignoresCase()) { "\($0.1) \($0.2)" }
+    }
 
     /// "half one" → "1:30". "half past one" stays, because the normaliser knows it.
     private static func halfHours(_ text: String) -> String {

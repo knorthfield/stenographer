@@ -15,6 +15,8 @@ struct NumberFormattingTests {
         ("Meet at half three pm.", "Meet at 3:30pm."),
         ("Call me at 3 p.m.", "Call me at 3pm."),
         ("Call me at 3 p.m. tomorrow.", "Call me at 3pm tomorrow."),
+        ("Switch the nineam to do nudge to tenam.", "Switch the 9am to do nudge to 10am."),
+        ("Meet at elevenPM tomorrow.", "Meet at 11pm tomorrow."),
         // Times without am or pm
         ("See you at half one.", "See you at 1:30."),
         ("See you at one o'clock.", "See you at 1:00."),
