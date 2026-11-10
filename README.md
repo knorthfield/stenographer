@@ -14,6 +14,9 @@ pasted into the app you are using.
   waveform and a red dot. When you release, a spinner shows until the text is pasted.
 - Stenographer removes filler sounds such as "um", "uh", "erm" and "hmm". It does not remove
   words that are real words in one of the languages, for example "er" and "eh".
+- Stenographer writes years, times and large numbers with digits: "twenty fifteen" becomes 2015,
+  "half one" becomes 1:30 and "three pm" becomes 3pm. Numbers from zero to nine stay words, as in
+  "one question". This works only in English.
 - When the text ends with a full stop or other punctuation, Stenographer adds a space after it. Then
   the next dictation does not join on to it.
 - A short tap of right Option does nothing. If you press another key while you hold right Option

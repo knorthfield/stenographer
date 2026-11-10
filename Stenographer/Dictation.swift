@@ -152,10 +152,11 @@ final class Dictation {
         bubble.hide()
     }
 
-    /// Trims the text, and adds a space after a final punctuation mark so the next dictation does
-    /// not join on to it.
+    /// Removes fillers, writes numbers with digits, trims the text, and adds a space after a final
+    /// punctuation mark so the next dictation does not join on to it.
     nonisolated static func pasteable(_ text: String) -> String? {
-        let trimmed = removingFillers(text).trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleaned = NumberFormatting.writtenNumbers(removingFillers(text))
+        let trimmed = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let last = trimmed.last else { return nil }
         return last.isPunctuation ? trimmed + " " : trimmed
     }
