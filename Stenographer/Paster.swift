@@ -1,7 +1,8 @@
 import AppKit
 import Carbon.HIToolbox
 
-/// Pastes text into the focused app with ⌘V, then puts the old clipboard back.
+/// Pastes text into the focused app with ⌘V, then puts the old clipboard back when the app has
+/// read the text.
 @MainActor
 enum Paster {
     private typealias Items = [[(NSPasteboard.PasteboardType, Data)]]
@@ -10,10 +11,20 @@ enum Paster {
     private struct PendingRestore {
         let saved: Items
         let changeCount: Int
+        let promise: PromisedText
         let task: Task<Void, Never>
+        var readAt: ContinuousClock.Instant?
     }
 
     private static var pendingRestore: PendingRestore?
+
+    /// Slow apps (Chromium, Electron, a VM, a busy Mac) can read the clipboard long after ⌘V. A
+    /// fixed delay can put the old clipboard back first, and then the app pastes that.
+    private static let delayAfterRead = Duration.milliseconds(50)
+    private static let shortestRestore = Duration.milliseconds(450)
+    /// If no app reads the text in this time, the paste failed: the text stays on the clipboard
+    /// so that the user can paste it.
+    private static let longestWait = Duration.seconds(3)
 
     static func paste(_ text: String) {
         let pasteboard = NSPasteboard.general
@@ -29,27 +40,52 @@ enum Paster {
             } ?? []
         }
 
-        pasteboard.clearContents()
-        pasteboard.setString(text, forType: .string)
+        // The text is a promise, so that Paster knows when an app reads it.
+        let promise = PromisedText(text)
+        let item = NSPasteboardItem()
+        item.setDataProvider(promise, forTypes: [.string])
         // Tells clipboard managers not to keep this text.
-        pasteboard.setData(Data(), forType: NSPasteboard.PasteboardType("org.nspasteboard.TransientType"))
+        item.setData(Data(), forType: NSPasteboard.PasteboardType("org.nspasteboard.TransientType"))
+        pasteboard.clearContents()
+        pasteboard.writeObjects([item])
         let changeCount = pasteboard.changeCount
         pressCommandV()
+        let pastedAt = ContinuousClock.now
 
         let task = Task {
-            try? await Task.sleep(for: .milliseconds(500))
-            guard !Task.isCancelled else { return }
-            pendingRestore = nil
-            // Something else changed the clipboard after us: leave it alone.
-            guard pasteboard.changeCount == changeCount, !saved.isEmpty else { return }
-            pasteboard.clearContents()
-            pasteboard.writeObjects(saved.map { contents in
-                let item = NSPasteboardItem()
-                for (type, data) in contents { item.setData(data, forType: type) }
-                return item
-            })
+            while true {
+                try? await Task.sleep(for: .milliseconds(50))
+                guard !Task.isCancelled else { return }
+                let now = ContinuousClock.now
+                if let readAt = pendingRestore?.readAt {
+                    guard now >= max(readAt + delayAfterRead, pastedAt + shortestRestore) else { continue }
+                    pendingRestore = nil
+                    restore(saved, on: pasteboard, ifStill: changeCount)
+                    return
+                }
+                if now >= pastedAt + longestWait {
+                    pendingRestore = nil
+                    return
+                }
+            }
         }
-        pendingRestore = PendingRestore(saved: saved, changeCount: changeCount, task: task)
+        pendingRestore = PendingRestore(saved: saved, changeCount: changeCount, promise: promise, task: task)
+    }
+
+    fileprivate static func textWasRead(from promise: PromisedText) {
+        guard pendingRestore?.promise === promise, pendingRestore?.readAt == nil else { return }
+        pendingRestore?.readAt = .now
+    }
+
+    private static func restore(_ saved: Items, on pasteboard: NSPasteboard, ifStill changeCount: Int) {
+        // Something else changed the clipboard after us: leave it alone.
+        guard pasteboard.changeCount == changeCount, !saved.isEmpty else { return }
+        pasteboard.clearContents()
+        pasteboard.writeObjects(saved.map { contents in
+            let item = NSPasteboardItem()
+            for (type, data) in contents { item.setData(data, forType: type) }
+            return item
+        })
     }
 
     /// Presses the ⌘ key itself, not only the ⌘ flag on V: Chrome and Electron apps (Slack,
@@ -86,5 +122,20 @@ enum Paster {
             }
             return nil
         }
+    }
+}
+
+/// Gives the text to the app that reads the clipboard, and tells Paster that it was read.
+private final class PromisedText: NSObject, NSPasteboardItemDataProvider, Sendable {
+    let text: String
+
+    init(_ text: String) {
+        self.text = text
+    }
+
+    func pasteboard(_ pasteboard: NSPasteboard?, item: NSPasteboardItem,
+                    provideDataForType type: NSPasteboard.PasteboardType) {
+        item.setString(text, forType: type)
+        Task { @MainActor in Paster.textWasRead(from: self) }
     }
 }

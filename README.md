@@ -20,7 +20,8 @@ pasted into the app you are using.
   (for example ⌥3 for #), the recording stops and nothing is pasted.
 - Paste also works in Chrome and in Electron apps such as Slack and VS Code, and with all
   keyboard layouts, also Dvorak.
-- Your clipboard is put back after the paste.
+- Your clipboard is put back after the paste. If no app takes the text, it stays on the clipboard so
+  that you can paste it yourself.
 
 ## Languages
 
