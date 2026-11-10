@@ -4,11 +4,30 @@ import Carbon.HIToolbox
 /// Pastes text into the focused app with ⌘V, then puts the old clipboard back.
 @MainActor
 enum Paster {
+    private typealias Items = [[(NSPasteboard.PasteboardType, Data)]]
+
+    /// The user's clipboard while it waits to be put back, and the clipboard state of our paste.
+    private struct PendingRestore {
+        let saved: Items
+        let changeCount: Int
+        let task: Task<Void, Never>
+    }
+
+    private static var pendingRestore: PendingRestore?
+
     static func paste(_ text: String) {
         let pasteboard = NSPasteboard.general
-        let saved = pasteboard.pasteboardItems?.map { item in
-            item.types.compactMap { type in item.data(forType: type).map { (type, $0) } }
-        } ?? []
+        // If the last paste is still waiting, the clipboard holds its transcript: keep the
+        // user's clipboard that it saved instead.
+        let saved: Items
+        if let pending = pendingRestore, pending.changeCount == pasteboard.changeCount {
+            pending.task.cancel()
+            saved = pending.saved
+        } else {
+            saved = pasteboard.pasteboardItems?.map { item in
+                item.types.compactMap { type in item.data(forType: type).map { (type, $0) } }
+            } ?? []
+        }
 
         pasteboard.clearContents()
         pasteboard.setString(text, forType: .string)
@@ -17,8 +36,10 @@ enum Paster {
         let changeCount = pasteboard.changeCount
         pressCommandV()
 
-        Task {
+        let task = Task {
             try? await Task.sleep(for: .milliseconds(500))
+            guard !Task.isCancelled else { return }
+            pendingRestore = nil
             // Something else changed the clipboard after us: leave it alone.
             guard pasteboard.changeCount == changeCount, !saved.isEmpty else { return }
             pasteboard.clearContents()
@@ -28,6 +49,7 @@ enum Paster {
                 return item
             })
         }
+        pendingRestore = PendingRestore(saved: saved, changeCount: changeCount, task: task)
     }
 
     /// Presses the ⌘ key itself, not only the ⌘ flag on V: Chrome and Electron apps (Slack,
