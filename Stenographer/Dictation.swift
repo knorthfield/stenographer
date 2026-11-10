@@ -82,7 +82,9 @@ final class Dictation {
         }
     }
 
-    /// No notification tells us when the user gives access, so check every second.
+    /// No notification tells us when the user gives or removes access, so check again and again:
+    /// every second while access is missing, so the setup window updates at once, and less
+    /// frequently after that, because a menu bar app that wakes up every second costs energy.
     private func watchPermissions() {
         Task {
             while true {
@@ -92,7 +94,7 @@ final class Dictation {
                 if hasAccessibility != Permissions.hasAccessibility { hasAccessibility.toggle() }
                 if lostMicrophone || lostAccessibility { onPermissionMissing() }
                 if hasAccessibility { key.start() }
-                try? await Task.sleep(for: .seconds(1))
+                try? await Task.sleep(for: .seconds(hasAllPermissions ? 10 : 1))
             }
         }
     }
