@@ -37,4 +37,27 @@ struct PasteableTests {
         #expect(Dictation.pasteable("hello") == "hello")
         #expect(Dictation.pasteable("   ") == nil)
     }
+
+    @Test func nothingIsPastedWhenOnlyFillersWereSaid() {
+        #expect(Dictation.pasteable("Um.") == nil)
+        #expect(Dictation.pasteable("Uh, um.") == nil)
+    }
+}
+
+struct FillerTests {
+    @Test(arguments: [
+        ("Um, so we go.", "So we go."),
+        ("I think, uh, we should.", "I think we should."),
+        ("So um we go.", "So we go."),
+        ("We should, um.", "We should."),
+        ("Done. Uh, next one.", "Done. Next one."),
+        ("Done. Um. Next one.", "Done. Next one."),
+        ("Uh, um, so we go.", "So we go."),
+        ("Ähm, wir gehen.", "Wir gehen."),
+        ("Hummus and umbrellas.", "Hummus and umbrellas."),
+        ("Er kommt morgen.", "Er kommt morgen."),
+    ])
+    func removesFillers(text: String, expected: String) {
+        #expect(Dictation.pasteable(text) == expected + " ")
+    }
 }

@@ -139,8 +139,26 @@ final class Dictation {
     /// Trims the text, and adds a space after a final punctuation mark so the next dictation does
     /// not join on to it.
     nonisolated static func pasteable(_ text: String) -> String? {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = removingFillers(text).trimmingCharacters(in: .whitespacesAndNewlines)
         guard let last = trimmed.last else { return nil }
         return last.isPunctuation ? trimmed + " " : trimmed
+    }
+
+    /// Removes "um", "uh" and similar sounds. Each one is not a word in any of the 25 languages,
+    /// so "er" (German) and "eh" (Italian, Spanish) stay.
+    nonisolated static func removingFillers(_ text: String) -> String {
+        // A filler that starts a sentence goes with its punctuation, and the next word gets a
+        // capital letter. Repeat, because the next word can be a filler too ("Uh, um, so").
+        let atSentenceStart = /(^|[.?!])\s*\b(?:um+|uh+|uhm|erm|hm+|mm+|ähm?|euh)\b[,.?!]?(\s*)(\p{L}?)/
+            .ignoresCase()
+        var result = text
+        while true {
+            let next = result.replacing(atSentenceStart) { $0.1 + $0.2 + $0.3.uppercased() }
+            if next == result { break }
+            result = next
+        }
+        // In a sentence, a filler goes with the commas around it.
+        let inSentence = /,?\s*\b(?:um+|uh+|uhm|erm|hm+|mm+|ähm?|euh)\b,?/.ignoresCase()
+        return result.replacing(inSentence, with: "")
     }
 }
