@@ -16,6 +16,8 @@ final class SetupWindow {
         )
         window.title = "Welcome to Stenographer"
         window.isReleasedWhenClosed = false
+        // Stay above other apps' windows, because the user opens System Settings while this window is open.
+        window.level = .floating
         let view = SetupView(dictation: dictation) { [weak self] in self?.window.close() }
         window.contentViewController = NSHostingController(rootView: view)
     }
