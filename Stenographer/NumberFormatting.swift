@@ -10,7 +10,7 @@ enum NumberFormatting {
         // US style. Before it, add the UK "half one", which it does not know. After it, change
         // the US style.
         let normalized = TextNormalizer.shared.normalizeSentence(halfHours(separatedMeridiems(text)))
-        return smallNumbersAsWords(ukTimes(normalized))
+        return smallNumbersAsWords(ukTimes(normalized, inputEndsWithFullStop: text.hasSuffix(".")))
     }
 
     private static let hours = [
@@ -33,14 +33,14 @@ enum NumberFormatting {
     }
 
     /// "03:00 p.m." → "3pm", "03:30 P.M." → "3:30pm", "01:00" → "1:00".
-    private static func ukTimes(_ text: String) -> String {
+    private static func ukTimes(_ text: String, inputEndsWithFullStop: Bool) -> String {
         let withoutLeadingZero = text.replacing(/\b0(\d):(\d\d)\b/) { "\($0.1):\($0.2)" }
         let meridiem = /\b(\d{1,2})(:\d\d)?\s?(?:([ap])\.m\.|([ap])m\b)/.ignoresCase()
         return withoutLeadingZero.replacing(meridiem) { match in
             let minutes = match.2 == ":00" ? "" : match.2 ?? ""
             let letter = (match.3 ?? match.4 ?? "").lowercased()
             // "p.m." at the end of the text was also the full stop of the sentence.
-            let isEndOfText = match.3 != nil && match.range.upperBound == withoutLeadingZero.endIndex
+            let isEndOfText = inputEndsWithFullStop && match.3 != nil && match.range.upperBound == withoutLeadingZero.endIndex
             return "\(match.1)\(minutes)\(letter)m" + (isEndOfText ? "." : "")
         }
     }
