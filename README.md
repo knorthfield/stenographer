@@ -80,6 +80,28 @@ Stenographer opens at login. To stop this, click the waveform icon and turn off 
 If you remove a permission later, the window opens again. The menu has the same **Allow…**
 buttons.
 
+### Start again as a new install
+
+To see the **Welcome to Stenographer** window again, for example to test it, remove the app, its
+settings and its permissions. An uninstall alone keeps the permissions.
+
+```sh
+osascript -e 'quit app "Stenographer"'
+tccutil reset Microphone com.krisnorthfield.Stenographer
+tccutil reset Accessibility com.krisnorthfield.Stenographer
+defaults delete com.krisnorthfield.Stenographer
+brew uninstall --zap --cask stenographer
+brew install --cask knorthfield/tap/stenographer
+open -a Stenographer
+```
+
+- If `defaults delete` says that the domain does not exist, there were no settings. Continue.
+- If Stenographer is still in System Settings › Privacy & Security › Accessibility, select it and
+  click **−**.
+- To also see the model download again, delete
+  `~/Library/Application Support/FluidAudio/Models/parakeet-tdt-0.6b-v3` before you open the app.
+  Do not do this if another app that uses FluidAudio needs the model.
+
 ## Build
 
 ```sh
