@@ -40,10 +40,11 @@ Or download `Stenographer.zip` from the
 
 Then:
 
-1. Open Stenographer. A waveform icon shows in the menu bar.
-2. From that menu, click **Allow Microphone…** and **Allow Accessibility…**, and turn Stenographer
-   on in System Settings.
+1. Open Stenographer. A waveform icon shows in the menu bar, and a window opens.
+2. In the window, click **Allow…** for the microphone and for Accessibility, and turn Stenographer
+   on in System Settings. The window closes when both are on. The menu has the same buttons.
 3. Wait until the menu says **Hold right ⌥ to dictate**. The first time, the model must download.
+   The window shows the progress.
 4. Click in a text field, hold right Option, speak, and release.
 
 Stenographer opens at login. You can turn this off in its menu.

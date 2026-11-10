@@ -37,7 +37,7 @@ final class Dictation {
         case .failed(let message):
             "The speech model did not load: \(message)"
         case .ready where !hasMicrophone || !hasAccessibility:
-            "Give access below to start"
+            "Give Stenographer access to start"
         case .ready:
             "Hold right ⌥ to dictate"
         }

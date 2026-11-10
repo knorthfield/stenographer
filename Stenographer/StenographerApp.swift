@@ -15,11 +15,13 @@ struct StenographerApp: App {
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let dictation = Dictation()
+    private lazy var setupWindow = SetupWindow(dictation: dictation)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // The unit tests run inside the app: do not download the model or add a login item.
+        // The unit tests run inside the app: do not download the model, add a login item or show a window.
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
         LoginItem.enableOnFirstLaunch()
+        dictation.onPermissionMissing = { [weak self] in self?.setupWindow.show() }
         dictation.start()
     }
 }
