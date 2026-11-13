@@ -28,6 +28,9 @@ final class Cleanup {
         self.session = session
     }
 
+    /// True after `prepare()` if the model can run.
+    var isPrepared: Bool { session != nil }
+
     func discard() {
         session = nil
     }

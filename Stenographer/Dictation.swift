@@ -25,6 +25,7 @@ final class Dictation {
     @ObservationIgnored private let recorder = Recorder()
     @ObservationIgnored private let transcriber = Transcriber()
     @ObservationIgnored private let cleanup = Cleanup()
+    @ObservationIgnored private var screenText: Task<String?, Never>?
     @ObservationIgnored private let spectrum = Spectrum()
     @ObservationIgnored private lazy var bubble = BubblePanel(spectrum: spectrum)
 
@@ -117,6 +118,8 @@ final class Dictation {
         stage = .recording
         recordingStartedAt = .now
         cleanup.prepare()
+        // Read now, while the app that the user dictates into has the focus.
+        screenText = cleanup.isPrepared ? Task.detached { ScreenText.beforeCursor() } : nil
         bubble.show()
     }
 
@@ -126,12 +129,15 @@ final class Dictation {
         spectrum.reset()
         guard Date.now.timeIntervalSince(recordingStartedAt) >= Self.minimumHold else {
             cleanup.discard()
+            screenText = nil
             stage = .idle
             bubble.hide()
             return
         }
         stage = .transcribing
         bubble.showProcessing()
+        let screenText = screenText
+        self.screenText = nil
         Task {
             defer {
                 stage = .idle
@@ -144,7 +150,7 @@ final class Dictation {
                     cleanup.discard()
                     return
                 }
-                let cleaned = await cleanup.cleaned(ruleCleaned, screenText: nil)
+                let cleaned = await cleanup.cleaned(ruleCleaned, screenText: await screenText?.value)
                 Paster.paste(Self.withTrailingSpace(cleaned))
             } catch {
                 lastError = error.localizedDescription
@@ -157,6 +163,7 @@ final class Dictation {
         _ = recorder.stop()
         spectrum.reset()
         cleanup.discard()
+        screenText = nil
         stage = .idle
         bubble.hide()
     }
