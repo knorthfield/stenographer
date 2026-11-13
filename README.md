@@ -46,7 +46,7 @@ This is the list of the speech model,
 
 ## Install
 
-Needs macOS 26 or later.
+Needs a Mac with Apple silicon and macOS 26 or later.
 
 With [Homebrew](https://brew.sh):
 
