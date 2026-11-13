@@ -24,6 +24,7 @@ final class Dictation {
     @ObservationIgnored private let key = RightOptionKey()
     @ObservationIgnored private let recorder = Recorder()
     @ObservationIgnored private let transcriber = Transcriber()
+    @ObservationIgnored private let cleanup = Cleanup()
     @ObservationIgnored private let spectrum = Spectrum()
     @ObservationIgnored private lazy var bubble = BubblePanel(spectrum: spectrum)
 
@@ -115,6 +116,7 @@ final class Dictation {
         }
         stage = .recording
         recordingStartedAt = .now
+        cleanup.prepare()
         bubble.show()
     }
 
@@ -123,6 +125,7 @@ final class Dictation {
         let samples = recorder.stop()
         spectrum.reset()
         guard Date.now.timeIntervalSince(recordingStartedAt) >= Self.minimumHold else {
+            cleanup.discard()
             stage = .idle
             bubble.hide()
             return
@@ -137,7 +140,12 @@ final class Dictation {
             do {
                 let text = try await transcriber.transcribe(samples)
                 lastError = nil
-                if let cleaned = Self.ruleCleaned(text) { Paster.paste(Self.withTrailingSpace(cleaned)) }
+                guard let ruleCleaned = Self.ruleCleaned(text) else {
+                    cleanup.discard()
+                    return
+                }
+                let cleaned = await cleanup.cleaned(ruleCleaned, screenText: nil)
+                Paster.paste(Self.withTrailingSpace(cleaned))
             } catch {
                 lastError = error.localizedDescription
             }
@@ -148,6 +156,7 @@ final class Dictation {
         guard stage == .recording else { return }
         _ = recorder.stop()
         spectrum.reset()
+        cleanup.discard()
         stage = .idle
         bubble.hide()
     }
