@@ -17,6 +17,13 @@ pasted into the app you are using.
 - Stenographer writes years, times and large numbers with digits: "twenty fifteen" becomes 2015,
   "half one" becomes 1:30 and "three pm" becomes 3pm. Numbers from zero to nine stay words, as in
   "one question". This works only in English.
+- On a Mac with Apple Intelligence on, Apple's on-device model corrects words that the speech model
+  heard wrong: "Twitch the 9am meeting" becomes "Switch the 9am meeting". It also reads the text
+  before the cursor in the app, and uses it to spell names and terms ("Jeff" becomes "Geoff" when
+  "Geoff" is on the screen). It does not read password fields. The text and your speech stay on
+  your Mac. This works in Danish, Dutch, English, French, German, Italian, Portuguese, Spanish and
+  Swedish. If the result changes more than a few words, or takes more than 2 seconds,
+  Stenographer pastes the text without the correction.
 - When the text ends with a full stop or other punctuation, Stenographer adds a space after it. Then
   the next dictation does not join on to it.
 - A short tap of right Option does nothing. If you press another key while you hold right Option
