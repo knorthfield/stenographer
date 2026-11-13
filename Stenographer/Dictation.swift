@@ -137,7 +137,7 @@ final class Dictation {
             do {
                 let text = try await transcriber.transcribe(samples)
                 lastError = nil
-                if let pasteable = Self.pasteable(text) { Paster.paste(pasteable) }
+                if let cleaned = Self.ruleCleaned(text) { Paster.paste(Self.withTrailingSpace(cleaned)) }
             } catch {
                 lastError = error.localizedDescription
             }
@@ -152,13 +152,16 @@ final class Dictation {
         bubble.hide()
     }
 
-    /// Removes fillers, writes numbers with digits, trims the text, and adds a space after a final
-    /// punctuation mark so the next dictation does not join on to it.
-    nonisolated static func pasteable(_ text: String) -> String? {
+    /// Removes fillers, writes numbers with digits and trims the text. Nil if nothing is left.
+    nonisolated static func ruleCleaned(_ text: String) -> String? {
         let cleaned = NumberFormatting.writtenNumbers(removingFillers(text))
         let trimmed = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let last = trimmed.last else { return nil }
-        return last.isPunctuation ? trimmed + " " : trimmed
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
+    /// Adds a space after a final punctuation mark, so the next dictation does not join on to it.
+    nonisolated static func withTrailingSpace(_ text: String) -> String {
+        text.last?.isPunctuation == true ? text + " " : text
     }
 
     /// Removes "um", "uh" and similar sounds. Each one is not a word in any of the 25 languages,

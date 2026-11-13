@@ -33,14 +33,15 @@ struct SpectrumTests {
 
 struct PasteableTests {
     @Test func trimsAndAddsASpaceAfterPunctuation() {
-        #expect(Dictation.pasteable("  Hello there.\n") == "Hello there. ")
-        #expect(Dictation.pasteable("hello") == "hello")
-        #expect(Dictation.pasteable("   ") == nil)
+        #expect(Dictation.ruleCleaned("  Hello there.\n") == "Hello there.")
+        #expect(Dictation.ruleCleaned("   ") == nil)
+        #expect(Dictation.withTrailingSpace("Hello there.") == "Hello there. ")
+        #expect(Dictation.withTrailingSpace("hello") == "hello")
     }
 
     @Test func nothingIsPastedWhenOnlyFillersWereSaid() {
-        #expect(Dictation.pasteable("Um.") == nil)
-        #expect(Dictation.pasteable("Uh, um.") == nil)
+        #expect(Dictation.ruleCleaned("Um.") == nil)
+        #expect(Dictation.ruleCleaned("Uh, um.") == nil)
     }
 }
 
@@ -58,6 +59,6 @@ struct FillerTests {
         ("Er kommt morgen.", "Er kommt morgen."),
     ])
     func removesFillers(text: String, expected: String) {
-        #expect(Dictation.pasteable(text) == expected + " ")
+        #expect(Dictation.ruleCleaned(text) == expected)
     }
 }
