@@ -30,7 +30,11 @@ struct NumberFormattingTests {
         ("There were two hundred and fifty people.", "There were 250 people."),
         ("I am here.", "I am here."),
         // Spoken hundreds
-        ("three sixty degree assessment", "360 degree assessment"),
+        ("three sixty degree assessment", "360° assessment"),
+        ("Turn it three sixty-degrees.", "Turn it 360°."),
+        ("It is twenty degrees outside.", "It is 20° outside."),
+        ("Turn it five degrees.", "Turn it five degrees."),
+        ("She has a degree in physics.", "She has a degree in physics."),
         ("A three sixty five day year.", "A 365 day year."),
         ("It is a seven eighty-seven.", "It is a 787."),
         ("See you at three thirty.", "See you at 3:30."),

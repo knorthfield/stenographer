@@ -10,7 +10,12 @@ enum NumberFormatting {
         // US style. Before it, add the UK "half one" and "three sixty", which it does not know.
         // After it, change the US style.
         let normalized = TextNormalizer.shared.normalizeSentence(halfHours(separatedMeridiems(spokenHundreds(text))))
-        return smallNumbersAsWords(ukTimes(normalized, inputEndsWithFullStop: text.hasSuffix(".")))
+        return degreeSigns(smallNumbersAsWords(ukTimes(normalized, inputEndsWithFullStop: text.hasSuffix("."))))
+    }
+
+    /// "360 degree" → "360°", "20 degrees" → "20°". "five degrees" stays, as "five pounds" does.
+    private static func degreeSigns(_ text: String) -> String {
+        text.replacing(/(\d)[ -]degrees?\b/.ignoresCase()) { "\($0.1)°" }
     }
 
     private static let hours = [
