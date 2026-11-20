@@ -150,14 +150,9 @@ final class Dictation {
                     cleanup.discard()
                     return
                 }
-                let dictionary = PersonalDictionary.load()
-                let cleaned = await cleanup.cleaned(
-                    ruleCleaned,
-                    screenText: await screenText?.value,
-                    terms: PersonalDictionary.terms(dictionary)
-                )
+                let cleaned = await cleanup.cleaned(ruleCleaned, screenText: await screenText?.value)
                 // Last, so that the clean-up cannot change the words back.
-                Paster.paste(Self.withTrailingSpace(PersonalDictionary.applying(dictionary, to: cleaned)))
+                Paster.paste(Self.withTrailingSpace(PersonalDictionary.applying(PersonalDictionary.load(), to: cleaned)))
             } catch {
                 lastError = error.localizedDescription
             }

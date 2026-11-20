@@ -24,6 +24,8 @@ struct PersonalDictionaryTests {
         // A short word is not put together from two words
         ("Am I an expert?", "Am I an expert?"),
         ("Nothing to change here.", "Nothing to change here."),
+        // Other names stay
+        ("Joe and Helen gave her the notes for Ian.", "Joe and Helen gave her the notes for Ian."),
     ])
     func replacesTheWrongForms(text: String, expected: String) {
         #expect(PersonalDictionary.applying(Self.entries, to: text) == expected)
@@ -51,18 +53,5 @@ struct PersonalDictionaryTests {
     @Test func aWordWithAnAmpersandStays() {
         let entries = [PersonalDictionary.Entry(word: "AT&T", heardAs: "AT and T")]
         #expect(PersonalDictionary.applying(entries, to: "I called at and t, then at&t.") == "I called AT&T, then AT&T.")
-    }
-
-    @Test func termsAreTheWords() {
-        #expect(PersonalDictionary.terms(Self.entries) == "Kris, Quarterdeck, Ian, Kris Northfield")
-        #expect(PersonalDictionary.terms([]) == nil)
-        #expect(PersonalDictionary.terms([PersonalDictionary.Entry(word: " ")]) == nil)
-    }
-
-    @Test func termsStopAtTheLimit() {
-        let entries = (0..<200).map { PersonalDictionary.Entry(word: "Word\($0)") }
-        let terms = PersonalDictionary.terms(entries)
-        #expect(terms?.count ?? 0 <= 500)
-        #expect(terms?.hasPrefix("Word0, Word1, ") == true)
     }
 }

@@ -47,9 +47,7 @@ icon in the menu bar, click **Dictionary…**, and click **Add Word**.
   For example, the word `Kris` with `Chris` in "Heard as". Stenographer always replaces these
   words, so do not put a word here that you also use with its usual spelling.
 
-Only whole words change: with `Chris` in "Heard as", "Christmas" stays. On a Mac with Apple
-Intelligence on, the on-device model also gets your words, and uses them to correct words that
-sound the same.
+Only whole words change: with `Chris` in "Heard as", "Christmas" stays.
 
 ## Languages
 

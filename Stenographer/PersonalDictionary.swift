@@ -11,8 +11,6 @@ enum PersonalDictionary {
     }
 
     private static let defaultsKey = "personalDictionary"
-    /// The clean-up model has a small context, so it gets only the first words.
-    private static let maximumTermsLength = 500
 
     static func load() -> [Entry] {
         guard let data = UserDefaults.standard.data(forKey: defaultsKey) else { return [] }
@@ -62,17 +60,6 @@ enum PersonalDictionary {
             result.replaceSubrange(range, with: replacements[index].word)
         }
         return result
-    }
-
-    /// The words for the clean-up model: "Kris, Quarterdeck". Nil if there are none.
-    nonisolated static func terms(_ entries: [Entry]) -> String? {
-        var terms = ""
-        for word in entries.map({ trimmed($0.word) }) where !word.isEmpty {
-            let longer = terms.isEmpty ? word : "\(terms), \(word)"
-            guard longer.count <= maximumTermsLength else { break }
-            terms = longer
-        }
-        return terms.isEmpty ? nil : terms
     }
 
     private nonisolated static func trimmed(_ text: String) -> String {
