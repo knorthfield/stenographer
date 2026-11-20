@@ -17,6 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let dictation = Dictation()
     private lazy var setupWindow = SetupWindow(dictation: dictation)
     private lazy var dictionaryWindow = DictionaryWindow()
+    private lazy var updateRelauncher = UpdateRelauncher(isBusy: { [dictation] in dictation.isDictating })
 
     func showDictionary() {
         dictionaryWindow.show()
@@ -28,6 +29,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         LoginItem.enableOnFirstLaunch()
         dictation.onPermissionMissing = { [weak self] in self?.setupWindow.show() }
         dictation.start()
+        updateRelauncher.start()
     }
 }
 

@@ -56,6 +56,8 @@ final class Dictation {
 
     var hasAllPermissions: Bool { hasMicrophone && hasAccessibility }
 
+    var isDictating: Bool { stage != .idle }
+
     /// Called at start, and when a permission goes away, if a permission is missing.
     @ObservationIgnored var onPermissionMissing: () -> Void = {}
 
