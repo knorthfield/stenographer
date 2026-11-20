@@ -7,7 +7,7 @@ struct StenographerApp: App {
 
     var body: some Scene {
         MenuBarExtra("Stenographer", systemImage: "waveform") {
-            MenuContent(dictation: appDelegate.dictation)
+            MenuContent(dictation: appDelegate.dictation) { appDelegate.showDictionary() }
         }
     }
 }
@@ -16,6 +16,11 @@ struct StenographerApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let dictation = Dictation()
     private lazy var setupWindow = SetupWindow(dictation: dictation)
+    private lazy var dictionaryWindow = DictionaryWindow()
+
+    func showDictionary() {
+        dictionaryWindow.show()
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // The unit tests run inside the app: do not download the model, add a login item or show a window.
@@ -28,6 +33,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 private struct MenuContent: View {
     let dictation: Dictation
+    let showDictionary: () -> Void
     @State private var opensAtLogin = LoginItem.isEnabled
 
     var body: some View {
@@ -45,6 +51,7 @@ private struct MenuContent: View {
             Button("Allow Accessibility…") { Permissions.requestAccessibility() }
         }
         Divider()
+        Button("Dictionary…", action: showDictionary)
         Toggle("Open at Login", isOn: $opensAtLogin)
             .onChange(of: opensAtLogin) { _, isOn in LoginItem.set(isOn) }
         Button("Quit Stenographer") { NSApp.terminate(nil) }

@@ -24,6 +24,8 @@ pasted into the app you are using.
   your Mac. This works in Danish, Dutch, English, French, German, Italian, Portuguese, Spanish and
   Swedish. If the result changes more than a few words, or takes more than 2 seconds,
   Stenographer pastes the text without the correction.
+- You can give Stenographer your own words, such as names, in a dictionary (see below). It then
+  writes "Kris" and not "Chris", and "Quarterdeck" and not "quarter deck".
 - When the text ends with a full stop or other punctuation, Stenographer adds a space after it. Then
   the next dictation does not join on to it.
 - A short tap of right Option does nothing. If you press another key while you hold right Option
@@ -32,6 +34,22 @@ pasted into the app you are using.
   keyboard layouts, also Dvorak.
 - Your clipboard is put back after the paste. If no app takes the text, it stays on the clipboard so
   that you can paste it yourself.
+
+## Dictionary
+
+Stenographer can write a name or a special word incorrectly. To correct this, click the waveform
+icon in the menu bar, click **Dictionary…**, and click **Add Word**.
+
+- **Word**: the correct spelling, for example `Quarterdeck`. Stenographer then also corrects the
+  word when it is split, has a hyphen or has wrong capitals: "quarter deck", "quarter-deck" and
+  "quarterdeck" become "Quarterdeck".
+- **Heard as**: the different words that Stenographer writes for it, with commas between them.
+  For example, the word `Kris` with `Chris` in "Heard as". Stenographer always replaces these
+  words, so do not put a word here that you also use with its usual spelling.
+
+Only whole words change: with `Chris` in "Heard as", "Christmas" stays. On a Mac with Apple
+Intelligence on, the on-device model also gets your words, and uses them to correct words that
+sound the same.
 
 ## Languages
 
@@ -105,6 +123,7 @@ brew install --cask knorthfield/tap/stenographer
 open -a Stenographer
 ```
 
+- `defaults delete` and `--zap` also remove your dictionary.
 - If `defaults delete` says that the domain does not exist, there were no settings. Continue.
 - If Stenographer is still in System Settings › Privacy & Security › Accessibility, select it and
   click **−**.
