@@ -7,9 +7,9 @@ import Foundation
 enum NumberFormatting {
     static func writtenNumbers(_ text: String) -> String {
         // FluidAudio's inverse text normalisation (NVIDIA NeMo rules) does most of the work, in
-        // US style. Before it, add the UK "half one", which it does not know. After it, change
-        // the US style.
-        let normalized = TextNormalizer.shared.normalizeSentence(halfHours(separatedMeridiems(text)))
+        // US style. Before it, add the UK "half one" and "three sixty", which it does not know.
+        // After it, change the US style.
+        let normalized = TextNormalizer.shared.normalizeSentence(halfHours(separatedMeridiems(spokenHundreds(text))))
         return smallNumbersAsWords(ukTimes(normalized, inputEndsWithFullStop: text.hasSuffix(".")))
     }
 
@@ -17,6 +17,20 @@ enum NumberFormatting {
         "one", "two", "three", "four", "five", "six",
         "seven", "eight", "nine", "ten", "eleven", "twelve",
     ]
+
+    private static let highTens = ["sixty", "seventy", "eighty", "ninety"]
+
+    /// "three sixty" → "360", "three sixty five" → "365". The normaliser adds the two numbers
+    /// (63). Only from sixty, because "three thirty" is a time.
+    private static func spokenHundreds(_ text: String) -> String {
+        text.replacing(/\b(one|two|three|four|five|six|seven|eight|nine) (sixty|seventy|eighty|ninety)(?:[ -](one|two|three|four|five|six|seven|eight|nine))?\b/
+            .ignoresCase()) { match in
+            let hundreds = smallNumbers.firstIndex(of: match.1.lowercased())!
+            let tens = highTens.firstIndex(of: match.2.lowercased())! + 6
+            let units = match.3.map { smallNumbers.firstIndex(of: $0.lowercased())! } ?? 0
+            return "\(hundreds)\(tens)\(units)"
+        }
+    }
 
     /// Parakeet sometimes joins the hour and "am": "tenam" → "ten am".
     private static func separatedMeridiems(_ text: String) -> String {

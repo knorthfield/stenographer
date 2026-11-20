@@ -29,6 +29,11 @@ struct NumberFormattingTests {
         ("It costs five pounds.", "It costs five pounds."),
         ("There were two hundred and fifty people.", "There were 250 people."),
         ("I am here.", "I am here."),
+        // Spoken hundreds
+        ("three sixty degree assessment", "360 degree assessment"),
+        ("A three sixty five day year.", "A 365 day year."),
+        ("It is a seven eighty-seven.", "It is a 787."),
+        ("See you at three thirty.", "See you at 3:30."),
         // Other languages
         ("Je suis arrivé en deux mille quinze.", "Je suis arrivé en deux mille quinze."),
     ])
