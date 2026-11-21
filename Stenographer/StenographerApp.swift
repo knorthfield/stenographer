@@ -7,7 +7,7 @@ struct StenographerApp: App {
 
     var body: some Scene {
         MenuBarExtra("Stenographer", systemImage: "waveform") {
-            MenuContent(dictation: appDelegate.dictation) { appDelegate.showDictionary() }
+            MenuContent(dictation: appDelegate.dictation) { appDelegate.showSettings() }
         }
     }
 }
@@ -15,19 +15,18 @@ struct StenographerApp: App {
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let dictation = Dictation()
-    private lazy var setupWindow = SetupWindow(dictation: dictation)
-    private lazy var dictionaryWindow = DictionaryWindow()
+    private lazy var settingsWindow = SettingsWindow(dictation: dictation)
     private lazy var updateRelauncher = UpdateRelauncher(isBusy: { [dictation] in dictation.isDictating })
 
-    func showDictionary() {
-        dictionaryWindow.show()
+    func showSettings() {
+        settingsWindow.show()
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // The unit tests run inside the app: do not download the model, add a login item or show a window.
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
         LoginItem.enableOnFirstLaunch()
-        dictation.onPermissionMissing = { [weak self] in self?.setupWindow.show() }
+        dictation.onPermissionMissing = { [weak self] in self?.settingsWindow.show(.permissions) }
         dictation.start()
         updateRelauncher.start()
     }
@@ -35,8 +34,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 private struct MenuContent: View {
     let dictation: Dictation
-    let showDictionary: () -> Void
-    @State private var opensAtLogin = LoginItem.isEnabled
+    let showSettings: () -> Void
 
     var body: some View {
         Text(dictation.status)
@@ -46,22 +44,15 @@ private struct MenuContent: View {
         if dictation.modelFailed {
             Button("Try Again") { dictation.loadModel() }
         }
-        if !dictation.hasMicrophone {
-            Button("Allow Microphone…") { Task { await Permissions.requestMicrophone() } }
-        }
-        if !dictation.hasAccessibility {
-            Button("Allow Accessibility…") { Permissions.requestAccessibility() }
-        }
         Divider()
-        Button("Dictionary…", action: showDictionary)
-        Toggle("Open at Login", isOn: $opensAtLogin)
-            .onChange(of: opensAtLogin) { _, isOn in LoginItem.set(isOn) }
+        Button("Settings…", action: showSettings)
+            .keyboardShortcut(",")
         Button("Quit Stenographer") { NSApp.terminate(nil) }
             .keyboardShortcut("q")
     }
 }
 
-private enum LoginItem {
+enum LoginItem {
     static var isEnabled: Bool { SMAppService.mainApp.status == .enabled }
 
     static func set(_ isEnabled: Bool) {
