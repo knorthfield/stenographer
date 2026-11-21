@@ -38,7 +38,7 @@ pasted into the app you are using.
 ## Dictionary
 
 Stenographer can write a name or a special word incorrectly. To correct this, click the waveform
-icon in the menu bar, click **Dictionary…**, and click **Add Word**.
+icon in the menu bar, click **Settings…**, click **Dictionary**, and click **Add Word**.
 
 - **Word**: the correct spelling, for example `Quarterdeck`. Stenographer then also corrects the
   word when it is split, has a hyphen or has wrong capitals: "quarter deck", "quarter-deck" and
@@ -88,27 +88,27 @@ Or download `Stenographer.zip` from the
 
 Then:
 
-1. Open Stenographer. A waveform icon shows in the menu bar, and the **Welcome to Stenographer**
-   window opens.
+1. Open Stenographer. A waveform icon shows in the menu bar, and the settings window opens at
+   **Permissions**.
 2. In the window, click **Allow…** for the microphone and for Accessibility. For Accessibility,
    turn on Stenographer in System Settings › Privacy & Security › Accessibility. A green tick
-   shows for each permission that you give. The window closes when both are on.
+   shows for each permission that you give. When both have a tick, you can close the window.
 
-   <img src="docs/setup-window.png" width="416" alt="The Welcome to Stenographer window. The microphone has an Allow button, and Accessibility has a green tick.">
+   <img src="docs/settings-window.png" width="542" alt="The settings window with General, Permissions and Dictionary in the sidebar. Permissions is selected. The microphone and Accessibility have green ticks.">
 
 3. Wait until the menu says **Hold right ⌥ to dictate**. Until then it says **Getting the speech
    model ready…** with a percentage. The first time, the model must download, and this can take
    some minutes. After that, it is quicker.
 4. Click in a text field, hold right Option, speak, and release.
 
-Stenographer opens at login. To stop this, click the waveform icon and turn off **Open at Login**.
+Stenographer opens at login. To stop this, click the waveform icon, click **Settings…**, and turn
+off **Open at Login** in **General**.
 
-If you remove a permission later, the window opens again. The menu has the same **Allow…**
-buttons.
+If you remove a permission later, the settings window opens again at **Permissions**.
 
 ### Start again as a new install
 
-To see the **Welcome to Stenographer** window again, for example to test it, remove the app, its
+To see the first start again, for example to test it, remove the app, its
 settings and its permissions. An uninstall alone keeps the permissions.
 
 ```sh
